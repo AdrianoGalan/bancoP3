@@ -8,7 +8,7 @@ IF NOT EXISTS (
         FROM sys.databases
         WHERE name = N'SIGA'
 )
-CREATE DATABASE SIGA
+CREATE  DATABASE SIGA
 GO
 
 USE SIGA
@@ -24,7 +24,7 @@ GO
 
 CREATE TABLE DISCIPLINA(
 
-    CODIGO              VARCHAR(10)     NOT NULL    PRIMARY KEY ,
+    CODIGO              INT             NOT NULL    PRIMARY KEY ,
     NOME                VARCHAR (150)   NOT NULL,
     SIGLA               VARCHAR (10)    NOT NULL,
     TURNO               CHAR(1)         NOT NULL    CHECK (TURNO = 'M' OR TURNO = 'T'OR TURNO = 'N'),
@@ -36,7 +36,7 @@ GO
 CREATE TABLE FALTAS(
 
     RA_ALUNO            INT             NOT NULL,
-    CODIGO_DISCIPLINA   VARCHAR (10)    NOT NULL,
+    CODIGO_DISCIPLINA   INT             NOT NULL,
     DATA_FALTA          DATE            NOT NULL,
     FALTA               INT             NOT NULL
     PRIMARY KEY(RA_ALUNO, CODIGO_DISCIPLINA, DATA_FALTA)
@@ -56,7 +56,7 @@ GO
 CREATE  TABLE NOTAS(
 
     RA_ALUNO            INT             NOT NULL,
-    CODIGO_DISCIPLINA   VARCHAR (10)    NOT NULL,
+    CODIGO_DISCIPLINA   INT             NOT NULL,
     CODIGO_AVALIACAO    INT             NOT NULL,
     NOTA                DECIMAL(4,2)    NOT NULL    CHECK (NOTA >= 0 AND NOTA <= 10)
     PRIMARY KEY(RA_ALUNO, CODIGO_DISCIPLINA, CODIGO_AVALIACAO)
