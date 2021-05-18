@@ -18,6 +18,7 @@ DECLARE @RA          INT,
         @P1          DECIMAL(4,2),
         @P2          DECIMAL(4,2),
         @P3          DECIMAL(4,2),
+        @pp          DECIMAL(4,2),
         @T           DECIMAL(4,2),
         @MEDIA_FINAL DECIMAL(4,2)
 
@@ -62,7 +63,16 @@ BEGIN
                 ON D.CODIGO = N.CODIGO_DISCIPLINA
                 WHERE A.RA = @RA AND AV.CODIGO = 2 AND D.CODIGO = @CODIGO_DISCIPLINA ) 
     
-    SET @T = (SELECT NOTA FROM NOTAS N
+    SET @P3 = (SELECT NOTA FROM NOTAS N
+                INNER JOIN ALUNO A
+                ON A.RA = N.RA_ALUNO
+                INNER JOIN AVALIACAO AV
+                ON AV.CODIGO = N.CODIGO_AVALIACAO
+                INNER JOIN DISCIPLINA D
+                ON D.CODIGO = N.CODIGO_DISCIPLINA
+                WHERE A.RA = @RA AND AV.CODIGO = 3 AND D.CODIGO = @CODIGO_DISCIPLINA ) 
+
+    SET @T =  (SELECT NOTA FROM NOTAS N
                 INNER JOIN ALUNO A
                 ON A.RA = N.RA_ALUNO
                 INNER JOIN AVALIACAO AV
@@ -71,14 +81,14 @@ BEGIN
                 ON D.CODIGO = N.CODIGO_DISCIPLINA
                 WHERE A.RA = @RA AND AV.CODIGO = 4 AND D.CODIGO = @CODIGO_DISCIPLINA ) 
 
-    SET @P3 =  (SELECT NOTA FROM NOTAS N
+    SET @PP =  (SELECT NOTA FROM NOTAS N
                 INNER JOIN ALUNO A
                 ON A.RA = N.RA_ALUNO
                 INNER JOIN AVALIACAO AV
                 ON AV.CODIGO = N.CODIGO_AVALIACAO
                 INNER JOIN DISCIPLINA D
                 ON D.CODIGO = N.CODIGO_DISCIPLINA
-                WHERE A.RA = @RA AND AV.CODIGO = 3 AND D.CODIGO = @CODIGO_DISCIPLINA ) 
+                WHERE A.RA = @RA AND AV.CODIGO = 5 AND D.CODIGO = @CODIGO_DISCIPLINA ) 
 
     IF(@P1 IS NULL)
     BEGIN
@@ -95,6 +105,11 @@ BEGIN
         SET @P3 = 0
     END 
 
+    IF(@PP IS NULL)
+    BEGIN
+        SET @PP = 0
+    END 
+
     IF(@T IS NULL)
     BEGIN
         SET @T = 0
@@ -109,10 +124,39 @@ BEGIN
         END
     END
 
-      IF(@CODIGO_DISCIPLINA = '4213-003' OR @CODIGO_DISCIPLINA = '4213-013')
+    IF(@CODIGO_DISCIPLINA = '4213-003' OR @CODIGO_DISCIPLINA = '4213-013')
     BEGIN
+       
         SET @MEDIA_FINAL = ((@P1 * 0.35) + (@P2 * 0.35) + (@T * 0.3))
+
         IF(@MEDIA_FINAL < 6 AND @MEDIA_FINAL >= 3)
+        BEGIN
+            SET @MEDIA_FINAL = (@MEDIA_FINAL + (@PP * 0.3))
+        END
+
+        IF(@MEDIA_FINAL < 6)
+        BEGIN
+            SET @MEDIA_FINAL = ((@MEDIA_FINAL * 0.5) + (@P3 * 0.5))
+        END
+    END
+
+    IF(@CODIGO_DISCIPLINA = '4233-005')
+    BEGIN
+       
+        SET @MEDIA_FINAL = ((@P1 * 0.33) + (@P2 * 0.33) + (@T * 0.33))
+
+        IF(@MEDIA_FINAL < 6)
+        BEGIN
+            SET @MEDIA_FINAL = ((@MEDIA_FINAL * 0.5) + (@P3 * 0.5))
+        END
+    END
+
+    IF(@CODIGO_DISCIPLINA = '5005-220')
+    BEGIN
+       
+        SET @MEDIA_FINAL = ((@P1 * 0.8) + (@P2 * 0.2))
+
+        IF(@MEDIA_FINAL < 6)
         BEGIN
             SET @MEDIA_FINAL = ((@MEDIA_FINAL * 0.5) + (@P3 * 0.5))
         END
@@ -152,13 +196,7 @@ BEGIN
     SET MEDIA_FINAL = @MEDIA_FINAL 
     WHERE ID = @I
 
-
-
-
-
     SET @I = @I -1
 END
 	RETURN
 END
---(RA_Aluno, Nome_Aluno, Nota1, Nota2, ..., Média_Final, Situação(Aprovado ou
---Reprovado))
