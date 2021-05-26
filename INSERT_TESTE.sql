@@ -58,5 +58,11 @@ INSERT INTO FALTAS VALUES
 (100, 21, 2),
 (100, 24, 2)
 
+INSERT INTO MATRICULA VALUES
+(100, 4203020, 20212),
+(101, 4203020, 20212)
+
 SELECT * from aulas
 SELECT * from faltas
+
+SELECT ra_aluno, nome_aluno from fn_matriculado(40000)
