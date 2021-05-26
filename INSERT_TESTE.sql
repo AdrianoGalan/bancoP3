@@ -65,4 +65,5 @@ INSERT INTO MATRICULA VALUES
 SELECT * from aulas
 SELECT * from faltas
 
-SELECT ra_aluno, nome_aluno from fn_matriculado(40000)
+
+SELECT ra, nome from fn_matriculado(4203020)
