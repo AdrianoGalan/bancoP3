@@ -8,6 +8,7 @@ P2              DECIMAL(4,2),
 T               DECIMAL(4,2),
 P3  		    DECIMAL(4,2),
 MEDIA_FINAL		DECIMAL(4,2),
+NUM_FALTA       INT,
 SITUACAO    	VARCHAR(100)
 )
 AS
@@ -20,7 +21,9 @@ DECLARE @RA          INT,
         @P3          DECIMAL(4,2),
         @pp          DECIMAL(4,2),
         @T           DECIMAL(4,2),
-        @MEDIA_FINAL DECIMAL(4,2)
+        @MEDIA_FINAL DECIMAL(4,2),
+        @NUM_FALTAS  INT,
+        @MAX_FALTA   INT
 
 INSERT INTO @table(RA_ALUNO)
 SELECT A.RA FROM NOTAS N
@@ -39,10 +42,23 @@ WHILE(@I <> 0)
 BEGIN
 
     SET @RA = (SELECT RA_ALUNO FROM @table WHERE ID = @I)
+
+    SET @NUM_FALTAS = (SELECT SUM(F.FALTA) FROM FALTAS F
+                       INNER JOIN ALUNO A 
+                       ON F.RA_ALUNO = A.RA
+                       INNER JOIN AULAS AU
+                       ON AU.ID = F.ID_AULA
+                       INNER JOIN DISCIPLINA D 
+                       ON AU.CODIGO_DISCIPLINA = D.CODIGO
+                       WHERE D.CODIGO = @CODIGO_DISCIPLINA AND A.RA = @RA)
    
 
     UPDATE @table
     SET NOME_ALUNO = (SELECT NOME FROM ALUNO WHERE RA = @RA ) 
+    WHERE ID = @I
+
+    UPDATE @table
+    SET NUM_FALTA = @NUM_FALTAS
     WHERE ID = @I
 
     SET @P1 = (SELECT NOTA FROM NOTAS N
@@ -161,42 +177,50 @@ BEGIN
             SET @MEDIA_FINAL = ((@MEDIA_FINAL * 0.5) + (@P3 * 0.5))
         END
     END
+  
 
+  SET @MAX_FALTA = (SELECT NUM_AULAS FROM DISCIPLINA  WHERE CODIGO = @CODIGO_DISCIPLINA) 
+  SET @MAX_FALTA = @MAX_FALTA * 0.25
 
-    IF(@MEDIA_FINAL < 6)
+    IF(@NUM_FALTAS > @MAX_FALTA)
     BEGIN
         UPDATE @table
-        SET SITUACAO = 'REPROVADO'
+        SET SITUACAO = 'REPROVADO FALTA'
         WHERE ID = @I
+
     END
     ELSE
     BEGIN
-        UPDATE @table
-        SET SITUACAO = 'APROVADO'
-        WHERE ID = @I
+        IF(@MEDIA_FINAL < 6)
+        BEGIN
+            UPDATE @table
+            SET SITUACAO = 'REPROVADO'
+            WHERE ID = @I
+        END
+        ELSE
+        BEGIN
+            UPDATE @table
+            SET SITUACAO = 'APROVADO'
+            WHERE ID = @I
+        END
     END
-                
     UPDATE @table
     SET P1 = @P1
     WHERE ID = @I
-
     UPDATE @table
     SET P2 = @P2
     WHERE ID = @I
-     
     UPDATE @table
     SET T = @T
     WHERE ID = @I
-
     UPDATE @table
     SET P3 = @P3 
     WHERE ID = @I
-
     UPDATE @table
     SET MEDIA_FINAL = @MEDIA_FINAL 
     WHERE ID = @I
-
     SET @I = @I -1
-END
+   
+END 
 	RETURN
 END
