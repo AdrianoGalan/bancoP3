@@ -1,3 +1,5 @@
+USE SIGA
+GO
 
 CREATE PROCEDURE sp_gerar_aulas
 AS

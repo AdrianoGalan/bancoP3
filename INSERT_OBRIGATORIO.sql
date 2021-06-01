@@ -1,3 +1,6 @@
+USE SIGA
+GO
+
 INSERT INTO disciplina VALUES
 (4203010, 'Arquitetura e Organização de Computadores', 'AOC', 'T', 80),
 (4203020, 'Arquitetura e Organização de Computadores', 'AOC', 'N', 80),
