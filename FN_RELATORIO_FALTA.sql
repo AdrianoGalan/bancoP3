@@ -25,7 +25,8 @@ D16         CHAR(4),
 D17         CHAR(4),
 D18         CHAR(4),
 D19         CHAR(4),
-D20         CHAR(4)
+D20         CHAR(4),
+TOTAL_FALTA INT
 )
 AS
 BEGIN
@@ -50,10 +51,11 @@ BEGIN
     INSERT INTO @#ALUNO(RA, NOME)
     SELECT RA, NOME FROM FN_MATRICULADO(@CODIGO_DISCIPLINA)
 
-    DECLARE @I          AS INT,
-            @IA         AS INT,
-            @N_FALTA    AS INT,
-            @RA         AS INT
+    DECLARE @I              AS INT,
+            @IA             AS INT,
+            @N_FALTA        AS INT,
+            @RA             AS INT,
+            @TOTAL_FALTA    AS INT
           
 
     SET @I = (SELECT COUNT(ID) FROM @#DIA)
@@ -69,6 +71,7 @@ BEGIN
         SELECT RA, NOME FROM @#ALUNO WHERE RA = @RA
 
          SET @I = (SELECT COUNT(ID) FROM @#DIA)
+         SET @TOTAL_FALTA = 0
 
         WHILE(@I > 0)
         BEGIN
@@ -87,6 +90,7 @@ BEGIN
                 UPDATE @table
                 SET D1 = (SELECT D1 FROM FN_RELATORIO_RETORNA_CHAR(@N_FALTA))
                 WHERE RA = @RA
+
             END
 
             IF(@I = 2)
@@ -222,9 +226,18 @@ BEGIN
                 WHERE RA = @RA
             END
 
+            IF(@N_FALTA IS NOT NULL)
+            BEGIN
+                SET @TOTAL_FALTA = @TOTAL_FALTA + @N_FALTA
+            END
 
             SET @I = @I -1
         END
+
+        UPDATE @table 
+        SET TOTAL_FALTA = @TOTAL_FALTA
+        WHERE RA = @RA
+
         SET @IA = @IA - 1
     END 
 
