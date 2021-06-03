@@ -43,8 +43,8 @@ FALTA16 CHAR(4),
 FALTA17 CHAR(4),
 FALTA18 CHAR(4),
 FALTA19 CHAR(4),
-FALTA20 CHAR(4)--,
---TOTAL_FALTAS INT
+FALTA20 CHAR(4),
+TOTAL_FALTAS INT
 )
 AS
 BEGIN
@@ -260,7 +260,8 @@ DECLARE @id	INT,
     DECLARE @I          AS INT,
             @IA         AS INT,
             @N_FALTA    AS INT,
-            @RA         AS INT
+            @RA         AS INT,
+			@TOTAL_FALTA    AS INT
           
 
     SET @I = (SELECT COUNT(ID) FROM @#DIA)
@@ -276,6 +277,7 @@ DECLARE @id	INT,
  --       SELECT RA, NOME FROM @#ALUNO WHERE RA = @RA
 
          SET @I = (SELECT COUNT(ID) FROM @#DIA)
+		 SET @TOTAL_FALTA = 0
 
         WHILE(@I > 0)
         BEGIN
@@ -429,9 +431,18 @@ DECLARE @id	INT,
                 WHERE RA_ALUNO = @RA
             END
 
+			IF(@N_FALTA IS NOT NULL)
+            BEGIN
+                SET @TOTAL_FALTA = @TOTAL_FALTA + @N_FALTA
+            END
 
             SET @I = @I -1
         END
+
+		UPDATE @table 
+        SET TOTAL_FALTAS = @TOTAL_FALTA
+        WHERE RA_ALUNO = @RA
+
         SET @IA = @IA - 1
     END
 
