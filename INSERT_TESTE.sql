@@ -67,6 +67,7 @@ SELECT * from aulas
 SELECT * from faltas
 SELECT * from MATRICULA
 SELECT * from NOTAS
+select ra, nome from aluno
 
 SELECT * FROM FN_MATRICULADO_NOTA(4203010)
 
